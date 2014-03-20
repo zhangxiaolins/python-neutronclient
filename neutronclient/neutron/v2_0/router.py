@@ -188,6 +188,10 @@ class SetGatewayRouter(neutronV20.NeutronCommand):
             'external_network_id', metavar='external-network-id',
             help=_('ID of the external network for the gateway'))
         parser.add_argument(
+            '--floating_ip_address', metavar='floating_ip_address',
+            default = None,
+            help=_("Preferred floating ip for creating the gateway"))
+        parser.add_argument(
             '--disable-snat', action='store_true',
             help=_('Disable Source NAT on the router gateway'))
         return parser
@@ -200,7 +204,9 @@ class SetGatewayRouter(neutronV20.NeutronCommand):
             neutron_client, self.resource, parsed_args.router_id)
         _ext_net_id = neutronV20.find_resourceid_by_name_or_id(
             neutron_client, 'network', parsed_args.external_network_id)
-        router_dict = {'network_id': _ext_net_id}
+        _floating_ip_address = parsed_args.floating_ip_address
+        router_dict = {'network_id': _ext_net_id,
+                       'floating_ip_address': _floating_ip_address}
         if parsed_args.disable_snat:
             router_dict['enable_snat'] = False
         neutron_client.add_gateway_router(_router_id, router_dict)
